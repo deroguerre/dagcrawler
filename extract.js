@@ -2,44 +2,53 @@ import * as IPFS from 'ipfs-core'
 import { CID } from 'multiformats/cid'
 import * as fs from 'fs'
 
-const ipfs = await IPFS.create()
 
-/**
- * Testing purpose cid : QmfKVJVcisw6WTcx18u1a6oDR1R988ocAukDdZ2YXZAm5q
- */
-
-// Change CID here
+// Change DAG CID here
 const stringCID = 'QmfKVJVcisw6WTcx18u1a6oDR1R988ocAukDdZ2YXZAm5q'
+
+// Change searched word here
+const searchedWord = 'zombie'
+
+// Stop program after x millisecond (1000 = 1sec), 0 disable timeout
+var maxtimeout = 0
+
+
+
+
+
+const ipfs = await IPFS.create()
 
 const validCID = CID.parse(stringCID)
 
-// var finalData = {};
-// var abortController = new AbortController();
-// var signal = abortController.signal
-// var totalIteration = 0;
+try {
+    fs.unlinkSync('./crawled_data.json')
+} catch (error) {
+    console.log("no file")
+}
 
 //make a ls on dag cid
-for await (const file of ipfs.ls(validCID, { 'timeout': 300 })) {
-    console.log(file.cid)
+for await (const file of ipfs.ls(validCID, { 'timeout': maxtimeout })) {
+    // console.log(file.cid)
     getDataFromObject(file.cid);
 }
 
 async function getDataFromObject(cid) {
-    const data = await ipfs.object.data(cid)
 
+    let today = new Date();
+    let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getUTCSeconds()
+    console.log(time + " searching... ctrl + c to abort")
+
+    let data = await ipfs.object.data(cid)
     let stringData = data.toString()
+
     stringData = remove_non_ascii(stringData)
-    // console.log(stringData)
-    let objData = JSON.parse(stringData);
 
-    // console.log(obj.attributes)
-
-    // obj.attributes.forEach(attribute => {
-    //     console.log(attribute.trait_type);
-    //     console.log(attribute.value);
-    // });
-
-    fs.appendFileSync('crawled_data.json', JSON.stringify(objData))
+    if (stringData.match(new RegExp(searchedWord, "i"))) {
+        console.log(cid + " found")
+        let objData = JSON.parse(stringData);
+        objData.cid = cid.toString()
+        fs.appendFileSync('crawled_data.json', JSON.stringify(objData))
+    }
 }
 
 function remove_non_ascii(str) {
