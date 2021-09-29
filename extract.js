@@ -4,15 +4,19 @@ import * as fs from 'fs'
 
 const ipfs = await IPFS.create()
 
-const fromString = 'QmfKVJVcisw6WTcx18u1a6oDR1R988ocAukDdZ2YXZAm5q'
-const validCID = CID.parse(fromString)
+/**
+ * Testing purpose cid : QmfKVJVcisw6WTcx18u1a6oDR1R988ocAukDdZ2YXZAm5q
+ */
 
-var finalData = {};
-var abortController = new AbortController();
-var signal = abortController.signal
+// Change CID here
+const stringCID = 'QmfKVJVcisw6WTcx18u1a6oDR1R988ocAukDdZ2YXZAm5q'
 
+const validCID = CID.parse(stringCID)
 
-var totalIteration = 0;
+// var finalData = {};
+// var abortController = new AbortController();
+// var signal = abortController.signal
+// var totalIteration = 0;
 
 //make a ls on dag cid
 for await (const file of ipfs.ls(validCID, { 'timeout': 300 })) {
@@ -23,10 +27,10 @@ for await (const file of ipfs.ls(validCID, { 'timeout': 300 })) {
 async function getDataFromObject(cid) {
     const data = await ipfs.object.data(cid)
 
-    var stringData = data.toString()
+    let stringData = data.toString()
     stringData = remove_non_ascii(stringData)
     // console.log(stringData)
-    const obj = JSON.parse(stringData);
+    let objData = JSON.parse(stringData);
 
     // console.log(obj.attributes)
 
@@ -35,7 +39,7 @@ async function getDataFromObject(cid) {
     //     console.log(attribute.value);
     // });
 
-    fs.appendFileSync('message.json', JSON.stringify(obj))
+    fs.appendFileSync('crawled_data.json', JSON.stringify(objData))
 }
 
 function remove_non_ascii(str) {

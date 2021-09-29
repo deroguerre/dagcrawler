@@ -15,5 +15,5 @@ npm install
 ## Usage
 
 ``` bash
-node app.js
+node extract.js
 ```
