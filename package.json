@@ -1,0 +1,16 @@
+{
+  "type": "module",
+  "name": "dagcrawler",
+  "version": "0.1.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ipfs-core": "^0.11.1",
+    "fs": "*"
+  }
+}
