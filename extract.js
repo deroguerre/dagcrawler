@@ -30,30 +30,33 @@ try {
 //make a ls on dag cid
 for await (const file of ipfs.ls(validCID, { 'timeout': maxtimeout })) {
     // console.log(file)
-    getDataFromObject(file.cid, file.path);
+    getDataFromObject(file);
 }
 
-async function getDataFromObject(cid, path) {
+async function getDataFromObject(file) {
 
     let today = new Date();
     let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getUTCSeconds()
-    console.log(time + " searching in " + path + "... ctrl + c to abort")
+    console.log(time + " searching in " + file.path + " size " + file.size + "... ctrl + c to abort")
 
-    let data = await ipfs.object.data(cid)
+    let data = await ipfs.object.data(file.cid)
     let stringData = data.toString()
-
-    stringData = remove_non_ascii(stringData)
-
+    
     if (stringData.match(new RegExp(searchedWord, "i"))) {
-        console.log(cid + " found")
+
+        console.log(file.cid + " found")
+
+        stringData = removeNonAscii(stringData)
+
         let objData = JSON.parse(stringData);
-        objData.cid = cid.toString()
-        objData.path = path
+        objData.cid = file.cid.toString()
+        objData.path = file.path
+
         fs.appendFileSync('crawled_data.json', JSON.stringify(objData))
     }
 }
 
-function remove_non_ascii(str) {
+function removeNonAscii(str) {
 
     if ((str === null) || (str === ''))
         return false;
